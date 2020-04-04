@@ -1,15 +1,19 @@
 package com.volunteer.web;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.volunteer.web.model.GetDistributionRequestSchema;
 import com.volunteer.web.model.GetDistributionResponseSchema;
 import com.volunteer.web.service.IEcomService;
+
+import net.glxn.qrgen.javase.QRCode;
 
 @RestController("/v1/fixarn/service")
 @SpringBootApplication
@@ -53,6 +59,20 @@ public class FixarnServcie {
 		}
 
 		return parts.toString();
+	}
+	
+	@RequestMapping(value = "/arsession", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	public byte[] getARSessionQRCode(@RequestBody String areSessionDetails) {
+		ByteArrayOutputStream stream = QRCode.from(areSessionDetails).withSize(250, 250).stream();
+		ByteArrayInputStream bis = new ByteArrayInputStream(stream.toByteArray());
+
+		try {
+			return IOUtils.toByteArray(bis);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	@RequestMapping(value = "/payment", method = RequestMethod.GET)
